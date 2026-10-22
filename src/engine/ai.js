@@ -3,7 +3,7 @@
 import { allLegal, apply, inCheck } from './rules';
 
 const VAL={P:100,N:320,B:330,R:500,Q:900,K:0};
-function evalS(s){
+export function evalS(s){
   let v=0;
   for(let r=0;r<8;r++)for(let c=0;c<8;c++){
     const p=s.b[r][c]; if(!p) continue;
@@ -13,6 +13,13 @@ function evalS(s){
     v+=p[0]==='w'?x:-x;
   }
   return v;
+}
+
+/* the computer accepts a draw only after 20 plies, and only if it is not better by more than a pawn */
+export function acceptsDraw(s,cpuCol,plies){
+  if(plies<20) return false;
+  const v=evalS(s), mine=cpuCol==='w'?v:-v;
+  return mine<=100;
 }
 function search(s,d,a,b){
   if(d<=0){

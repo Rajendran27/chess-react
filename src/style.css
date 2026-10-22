@@ -125,7 +125,7 @@ button.b.go{flex:1 1 auto;padding:14px 18px;font-size:17px;border-radius:10px}
 .ic{flex:none}
 /* action dock under the board */
 .dockwrap{position:relative;width:var(--b)}
-.dock{display:grid;grid-template-columns:repeat(6,1fr);gap:2px;padding:5px;border-radius:16px;background:var(--panel)}
+.dock{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:5px;border-radius:16px;background:var(--panel)}
 .dk{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;height:48px;border-radius:11px;background:transparent;border:0;color:var(--ink);font-size:11px;cursor:pointer;transition:background .12s}
 .dk:hover:not(:disabled){background:#22303d}
 .dk.on{background:rgba(242,184,75,.16);color:var(--acc)}
@@ -148,3 +148,10 @@ button.b.go{flex:1 1 auto;padding:14px 18px;font-size:17px;border-radius:10px}
 .mfoot{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-top:1px solid #22303d;color:var(--mute);font-size:13px}
 .trophy{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(242,184,75,.14);color:var(--acc)}
 @media (prefers-reduced-motion:reduce){.turn,.spin{animation:none}}
+.modal{position:fixed;inset:0;background:rgba(16,24,32,.8);display:flex;align-items:center;justify-content:center;z-index:100;padding:12px}
+.hd2{font:600 22px Georgia,"Times New Roman",serif;color:var(--acc)}
+.topbar{display:flex;align-items:center;gap:8px}
+.tb{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;border:0;background:var(--panel);color:var(--ink);cursor:pointer}
+.tb:hover:not(:disabled){background:#22303d}
+.tb:disabled{opacity:.3;cursor:default}
+.tb:focus-visible{outline:2px solid var(--acc)}

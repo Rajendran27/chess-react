@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react';
+
 const h = React.createElement;
 
-export default function ConfirmDialog({ title, text, confirmLabel, onConfirm, onCancel }) {
+export default function ConfirmDialog({ title, text, confirmLabel, cancelLabel = 'Stay', onConfirm, onCancel }) {
+  // Escape closes the popup, same as pressing the cancel button
   useEffect(() => {
     const k = e => { if (e.key === 'Escape') onCancel(); };
     window.addEventListener('keydown', k);
@@ -13,6 +15,6 @@ export default function ConfirmDialog({ title, text, confirmLabel, onConfirm, on
       h('div', { className: 'hd2' }, title),
       h('div', { className: 'sub' }, text),
       h('div', { className: 'btns' },
-        h('button', { className: 'b', onClick: onCancel }, 'Stay'),
+        h('button', { className: 'b', onClick: onCancel }, cancelLabel),
         h('button', { className: 'b pri', onClick: onConfirm, autoFocus: true }, confirmLabel))));
 }
