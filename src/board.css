@@ -1,0 +1,15 @@
+/* extra polish: loaded after style.css, so it only adds to it */
+.board{border-color:#0f1f20;border-radius:14px;overflow:hidden;box-shadow:0 18px 40px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.06)}
+.sq:hover{box-shadow:inset 0 0 0 100px rgba(255,255,255,.07)}
+.pc.w{filter:drop-shadow(0 2px 2px rgba(0,0,0,.45))}
+.pc.b{filter:drop-shadow(0 2px 2px rgba(0,0,0,.3))}
+.pc.ghost{filter:drop-shadow(0 8px 10px rgba(0,0,0,.5))}
+@keyframes clkpulse{0%,100%{opacity:1}50%{opacity:.65}}
+.clk-low{animation:clkpulse 1s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.clk-low{animation:none}}
+
+/* big move-history panel on wide screens */
+.mpop.fill{position:static;flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;box-shadow:none}
+.mlist{flex:1;min-height:0;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:4px;font-size:16px;font-variant-numeric:tabular-nums}
+.mlist .mv{grid-template-columns:40px 1fr 1fr}
+.mlist .m{min-height:26px;padding:3px 8px}

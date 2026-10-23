@@ -31,8 +31,9 @@ export default function useGame({names,active}){
     if(snap.over||(tc&&ck[snap.s.turn]<=0)) return;          // no moves after game end / flag fall
     const ns=apply(snap.s,m,pr), keys=[...snap.keys,keyOf(ns)], st=status(ns,keys);
     if(!st.over) playSound(st.chk?'check':m.castle?'castle':m.cap?'capture':'move');
+    const taken=m.cap?(m.enp?snap.s.b[m.fr][m.tc]:snap.s.b[m.tr][m.tc]):null;   // the piece that was captured
     setHist([...hist,snap]);
-    setSnap({s:ns,keys,log:[...snap.log,san(snap.s,{...m,pr},st)],over:st.over,chk:st.chk,last:[m.fr,m.fc,m.tr,m.tc],clk:ck,noanim:!!na});
+    setSnap({s:ns,keys,log:[...snap.log,san(snap.s,{...m,pr},st)],caps:taken?[...(snap.caps||[]),taken]:(snap.caps||[]),over:st.over,chk:st.chk,last:[m.fr,m.fc,m.tr,m.tc],clk:ck,noanim:!!na});
     setSel(null);setPromo(null);
   };
 

@@ -8,7 +8,7 @@ const h=React.createElement;
 const NAMES={P:'pawn',N:'knight',B:'bishop',R:'rook',Q:'queen',K:'king'};
 
 /* children = overlays drawn on top of the board (e.g. the game-over card) */
-export default function Board({snap,sel,targets,flip,drag,promo,theme,pst,onSquare,onDown,onPromote,onCancelPromo,children}){
+export default function Board({snap,sel,targets,flip,drag,promo,theme,pst,hints=true,onSquare,onDown,onPromote,onCancelPromo,children}){
   const anim=(r,c)=>{
     const L=snap.last; if(!L||snap.noanim) return null;
     const [fr,fc,tr,tc2]=L, k=snap.s.b[tr][tc2]; let o=null;
@@ -24,7 +24,7 @@ export default function Board({snap,sel,targets,flip,drag,promo,theme,pst,onSqua
     const cls=['sq',(r+c)%2?'d':'l',
       sel&&sel[0]===r&&sel[1]===c?'sel':'',
       L&&((L[0]===r&&L[1]===c)||(L[2]===r&&L[3]===c))?'last':'',
-      kp&&kp[0]===r&&kp[1]===c?'chk':'', tg?'dot':'', tg&&tg.cap?'cp':''].join(' ');
+      kp&&kp[0]===r&&kp[1]===c?'chk':'', hints&&tg?'dot':'', hints&&tg&&tg.cap?'cp':''].join(' ');
     cells.push(h('button',{key:r+'-'+c,className:cls,onClick:()=>onSquare(r,c),onPointerDown:e=>onDown(e,r,c),'data-sq':r+','+c,
       'aria-label':(p?(p[0]==='w'?'white ':'black ')+NAMES[p[1]]+' on ':'')+String.fromCharCode(97+c)+(8-r)},
       ci===0&&h('span',{className:'co r'},8-r),

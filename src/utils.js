@@ -10,5 +10,5 @@ export const saveRes=r=>{try{localStorage.setItem('chess-results',JSON.stringify
 export const load=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v;}catch(e){return d;}};
 export const save=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}};
 export const elo=(r,o,sc)=>Math.round(r+32*(sc-1/(1+Math.pow(10,(o-r)/400))));
-export const fresh=()=>{const s=init();return {s,keys:[keyOf(s)],log:[],over:null,chk:false,last:null,clk:null};};
+export const fresh=()=>{const s=init();return {s,keys:[keyOf(s)],log:[],caps:[],over:null,chk:false,last:null,clk:null};};
 export const material=(b,col)=>{let v=0;for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=b[r][c];if(p&&p[0]===col&&PTS[p[1]])v+=PTS[p[1]];}return v;};
