@@ -6,6 +6,7 @@ import { save, material } from './utils';
 import Setup from './components/Setup';
 import Dashboard from './components/Dashboard';
 import CornerIcon from './components/CornerIcon';
+import Sidebar from './components/Sidebar';
 import StatusBar from './components/StatusBar';
 import Board from './components/Board';
 import PlayerBar from './components/PlayerBar';
@@ -138,7 +139,7 @@ export default function App(){
       gridTemplateColumns:'minmax(72px,1fr) var(--b) minmax(400px,1.4fr)',
       gridTemplateRows:'48px var(--b) 48px'
     }}>
-      <Box sx={{gridColumn:1,gridRow:1,justifySelf:'start'}}><CornerIcon name="home" /></Box>
+      <Sidebar />
       <Box sx={{gridColumn:2,gridRow:1}}>{topBar}</Box>
       <Box sx={{gridColumn:3,gridRow:1,display:'flex',alignItems:'center',justifyContent:'space-between',gap:1}}>
         {status}
@@ -152,7 +153,6 @@ export default function App(){
           : wideLog&&<MoveHistory fill log={snap.log} />}
       </Box>
 
-      <Box sx={{gridColumn:1,gridRow:3,justifySelf:'start'}}><CornerIcon name="calendar" /></Box>
       <Box sx={{gridColumn:2,gridRow:3}}>{bottomBar}</Box>
       <Box sx={{gridColumn:3,gridRow:3,display:'flex',alignItems:'center',gap:1}}>
         {undoBtn}
