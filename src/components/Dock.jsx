@@ -24,7 +24,8 @@ export function UndoButton({disabled,onClick}){
     <ButtonBase onClick={onClick} disabled={disabled} title="Undo move" aria-label="Undo move"
       sx={{flex:'none',width:48,height:48,borderRadius:'50%',flexDirection:'column',gap:.25,border:'1px solid',borderColor:'divider',
         bgcolor:'background.paper',opacity:disabled?.3:1,'& svg':{fontSize:20},transition:'background-color .15s','&:hover:not(:disabled)':{bgcolor:'#14292b'}}}>
-      <Undo />
+      {/* stroke makes the arrow bolder: raise strokeWidth for bolder, lower it for lighter */}
+      <Undo sx={{stroke:'currentColor',strokeWidth:1.2}} />
       <Typography sx={{fontSize:11,lineHeight:1}}>Undo</Typography>
     </ButtonBase>
   );

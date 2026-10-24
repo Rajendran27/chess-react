@@ -7,6 +7,7 @@ import Setup from './components/Setup';
 import Dashboard from './components/Dashboard';
 import CornerIcon from './components/CornerIcon';
 import Sidebar from './components/Sidebar';
+import RightBar from './components/RightBar';
 import StatusBar from './components/StatusBar';
 import Board from './components/Board';
 import PlayerBar from './components/PlayerBar';
@@ -129,21 +130,24 @@ export default function App(){
   );
 
   /* ----- big screens: three rows, each lined up across the whole window -----
-     top    : home | top player | status, draw, resign ........ settings
-     middle :   (free)  | board    | move history (or the question being asked)
-     bottom : calendar | bottom player | undo + other buttons */
+     top    : (left bar) | top player | status, draw, resign
+     middle : (left bar) | board      | move history (or the question being asked)
+     bottom : (left bar) | bottom player | undo
+     the left bar and the right bar (settings + game buttons) are pinned to the window edges */
   if(wide) return (
     <Box sx={{
-      '--b':'min(calc(100dvh - 136px), calc(100vw - 560px), 900px)',
-      height:'100dvh',boxSizing:'border-box',px:2,py:1,display:'grid',alignContent:'center',alignItems:'center',columnGap:3,rowGap:1,
+      '--b':'min(calc(100dvh - 136px), calc(100vw - 650px), 900px)',
+      height:'100dvh',boxSizing:'border-box',pl:2,pr:'104px',py:1,display:'grid',alignContent:'center',alignItems:'center',columnGap:3,rowGap:1,
       gridTemplateColumns:'minmax(72px,1fr) var(--b) minmax(400px,1.4fr)',
       gridTemplateRows:'48px var(--b) 48px'
     }}>
       <Sidebar />
+      <RightBar sound={S.sound} showLog={wideLog}
+        onFlip={()=>setFlip(!flip)} onRestart={()=>startNew(mode,tc)} onToggleLog={()=>setWideLog(v=>!v)}
+        onSetup={toSetup} onStats={openDash} onToggleSound={S.toggleSound} onSettings={()=>setShowSettings(true)} />
       <Box sx={{gridColumn:2,gridRow:1}}>{topBar}</Box>
       <Box sx={{gridColumn:3,gridRow:1,display:'flex',alignItems:'center',justifyContent:'space-between',gap:1}}>
         {status}
-        <CornerIcon name="settings" label="Settings" onClick={()=>setShowSettings(true)} />
       </Box>
 
       <Box sx={{gridColumn:2,gridRow:2}}>{boardEl}</Box>
@@ -154,10 +158,7 @@ export default function App(){
       </Box>
 
       <Box sx={{gridColumn:2,gridRow:3}}>{bottomBar}</Box>
-      <Box sx={{gridColumn:3,gridRow:3,display:'flex',alignItems:'center',gap:1}}>
-        {undoBtn}
-        {dock}
-      </Box>
+      <Box sx={{gridColumn:3,gridRow:3,display:'flex',alignItems:'center',gap:1}}>{undoBtn}</Box>
       {ghost}
       <SettingsDialog open={showSettings} onClose={()=>setShowSettings(false)} hints={S.hints} setHints={S.setHints} undoOn={S.undoOn} setUndoOn={S.setUndoOn} sound={S.sound} toggleSound={S.toggleSound} />
     </Box>
@@ -165,22 +166,23 @@ export default function App(){
 
   /* ----- phones and narrow windows: one column ----- */
   return (
-    <Box sx={{'--b':'min(96vw, calc(100dvh - 250px), 640px)',width:'var(--b)',mx:'auto',py:1,display:'flex',flexDirection:'column',gap:1}}>
+    <Box sx={{'--b':'min(calc(96vw - 56px), calc(100dvh - 250px), 640px)',boxSizing:'border-box',width:'100%',pl:'56px'}}>
+      <Sidebar compact />
+      <Box sx={{width:'var(--b)',mx:'auto',py:1,display:'flex',flexDirection:'column',gap:1}}>
       <Box sx={{display:'flex',alignItems:'center',gap:1}}>
-        <CornerIcon name="home" size={40} />
         {status}
         <CornerIcon name="settings" size={40} label="Settings" onClick={()=>setShowSettings(true)} />
       </Box>
       <div className="stage">{topBar}{boardEl}{bottomBar}</div>
       <Box sx={{display:'flex',alignItems:'center',gap:1,position:'relative'}}>
         {showLog&&!confirm&&<MoveHistory log={snap.log} onClose={()=>setShowLog(false)} />}
-        <CornerIcon name="calendar" size={40} />
         {undoBtn}
         {dock}
       </Box>
       {ghost}
       <SettingsDialog open={showSettings} onClose={()=>setShowSettings(false)} hints={S.hints} setHints={S.setHints} undoOn={S.undoOn} setUndoOn={S.setUndoOn} sound={S.sound} toggleSound={S.toggleSound} />
       {confirm&&<ConfirmDialog {...confirm} />}
+      </Box>
     </Box>
   );
 }
