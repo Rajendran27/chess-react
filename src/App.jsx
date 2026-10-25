@@ -166,23 +166,22 @@ export default function App(){
 
   /* ----- phones and narrow windows: one column ----- */
   return (
-    <Box sx={{'--b':'min(calc(96vw - 56px), calc(100dvh - 250px), 640px)',boxSizing:'border-box',width:'100%',pl:'56px'}}>
-      <Sidebar compact />
-      <Box sx={{width:'var(--b)',mx:'auto',py:1,display:'flex',flexDirection:'column',gap:1}}>
+    <Box sx={{'--b':'min(96vw, calc(100dvh - 250px), 640px)',width:'var(--b)',mx:'auto',py:1,display:'flex',flexDirection:'column',gap:1}}>
       <Box sx={{display:'flex',alignItems:'center',gap:1}}>
+        <CornerIcon name="home" size={40} />
         {status}
         <CornerIcon name="settings" size={40} label="Settings" onClick={()=>setShowSettings(true)} />
       </Box>
       <div className="stage">{topBar}{boardEl}{bottomBar}</div>
       <Box sx={{display:'flex',alignItems:'center',gap:1,position:'relative'}}>
         {showLog&&!confirm&&<MoveHistory log={snap.log} onClose={()=>setShowLog(false)} />}
+        <CornerIcon name="calendar" size={40} />
         {undoBtn}
         {dock}
       </Box>
       {ghost}
       <SettingsDialog open={showSettings} onClose={()=>setShowSettings(false)} hints={S.hints} setHints={S.setHints} undoOn={S.undoOn} setUndoOn={S.setUndoOn} sound={S.sound} toggleSound={S.toggleSound} />
       {confirm&&<ConfirmDialog {...confirm} />}
-      </Box>
     </Box>
   );
 }

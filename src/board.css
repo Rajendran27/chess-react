@@ -13,3 +13,21 @@
 .mlist{flex:1;min-height:0;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:4px;font-size:16px;font-variant-numeric:tabular-nums}
 .mlist .mv{grid-template-columns:40px 1fr 1fr}
 .mlist .m{min-height:26px;padding:3px 8px}
+
+/* setup box: tighter spacing on short windows so "vs Computer" never needs scrolling */
+@media (max-height:840px){
+  .setup{gap:12px;padding:16px 22px}
+  .setup .col{gap:12px}
+  .setup .sg{gap:6px}
+  .hero h1{font-size:34px}
+}
+
+/* setup box size by window height (the box is tallest in vs Computer mode) */
+@media (min-width:900px){
+  .setup{zoom:.8}
+  @media (min-height:620px){.setup{zoom:.88}}
+  @media (min-height:660px){.setup{zoom:.95}}
+  @media (min-height:700px){.setup{zoom:1.02}}
+  @media (min-height:740px){.setup{zoom:1.08}}
+  @media (min-height:780px){.setup{zoom:1.15}}
+}
