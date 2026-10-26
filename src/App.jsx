@@ -8,6 +8,7 @@ import Dashboard from './components/Dashboard';
 import CornerIcon from './components/CornerIcon';
 import Sidebar from './components/Sidebar';
 import RightBar from './components/RightBar';
+import StatsPanel from './components/StatsPanel';
 import StatusBar from './components/StatusBar';
 import Board from './components/Board';
 import PlayerBar from './components/PlayerBar';
@@ -26,7 +27,7 @@ export default function App(){
   const S=useSettings();
   // which screen is showing + small pieces of screen state
   const [view,setView]=useState('setup'), [dashFrom,setDashFrom]=useState('setup');
-  const [showLog,setShowLog]=useState(false), [wideLog,setWideLog]=useState(true), [showSettings,setShowSettings]=useState(false);
+  const [showLog,setShowLog]=useState(false), [wideView,setWideView]=useState('moves'), [showStats,setShowStats]=useState(false), [showSettings,setShowSettings]=useState(false);
   const [ask,setAsk]=useState(null), [notice,setNotice]=useState(null);   // ask: 'resign' | 'draw' | 'leave' | null
   const wide=useMediaQuery('(min-width:900px) and (min-aspect-ratio:5/4)',{noSsr:true});   // big screen layout
   const g=useGame({names:S.names,active:view==='game'});
@@ -53,6 +54,10 @@ export default function App(){
     else goSetup();                 // nothing to lose: just go
   };
   const openDash=()=>{setDashFrom(view==='dash'?dashFrom:view);setView('dash');};
+  // during a game the dashboard opens where the moves are shown (side panel on wide screens, pop-up on phones)
+  const toggleMoves=()=>wide?setWideView(v=>v==='moves'?null:'moves'):(setShowStats(false),setShowLog(v=>!v));
+  const toggleStats=()=>wide?setWideView(v=>v==='stats'?null:'stats'):(setShowLog(false),setShowStats(v=>!v));
+  const showStatsNow=()=>wide?setWideView('stats'):(setShowLog(false),setShowStats(true));
 
   /* short message in the status pill */
   const flash=m=>{setNotice(m);setTimeout(()=>setNotice(null),3000);};
@@ -114,14 +119,14 @@ export default function App(){
       onSquare={input.click} onDown={input.onDown} onPromote={t=>play(promo,t)} onCancelPromo={()=>setPromo(null)}>
       {snap.over&&showEnd&&(
         <EndCard over={snap.over} mode={mode} cpuCol={cpuCol} nameOf={nameOf} ratingNote={ratingNote()}
-          onNext={()=>startNew(mode,tc)} onUndo={S.undoOn?undo:null} onSetup={toSetup} onStats={openDash} onBoard={()=>setShowEnd(false)} />
+          onNext={()=>startNew(mode,tc)} onUndo={S.undoOn?undo:null} onSetup={toSetup} onStats={showStatsNow} onBoard={()=>setShowEnd(false)} />
       )}
     </Board>
   );
   const undoBtn=<UndoButton disabled={!S.undoOn||!(hist.length>0&&!cpuTurn)} onClick={undo} />;
   const dock=(
-    <Dock showLog={wide?wideLog:showLog} sound={S.sound} onFlip={()=>setFlip(!flip)} onRestart={()=>startNew(mode,tc)}
-      onToggleLog={()=>wide?setWideLog(v=>!v):setShowLog(v=>!v)} onSetup={toSetup} onStats={openDash} onToggleSound={S.toggleSound} />
+    <Dock showLog={wide?wideView==='moves':showLog} sound={S.sound} onFlip={()=>setFlip(!flip)} onRestart={()=>startNew(mode,tc)}
+      onToggleLog={toggleMoves} onSetup={toSetup} onStats={toggleStats} onToggleSound={S.toggleSound} />
   );
   const ghost=drag&&drag.moved&&(
     <div className={'gw p-'+pst}>
@@ -142,9 +147,9 @@ export default function App(){
       gridTemplateRows:'48px var(--b) 48px'
     }}>
       <Sidebar />
-      <RightBar sound={S.sound} showLog={wideLog}
-        onFlip={()=>setFlip(!flip)} onRestart={()=>startNew(mode,tc)} onToggleLog={()=>setWideLog(v=>!v)}
-        onSetup={toSetup} onStats={openDash} onToggleSound={S.toggleSound} onSettings={()=>setShowSettings(true)} />
+      <RightBar sound={S.sound} showLog={wideView==='moves'} showStats={wideView==='stats'}
+        onFlip={()=>setFlip(!flip)} onRestart={()=>startNew(mode,tc)} onToggleLog={toggleMoves}
+        onSetup={toSetup} onStats={toggleStats} onToggleSound={S.toggleSound} onSettings={()=>setShowSettings(true)} />
       <Box sx={{gridColumn:2,gridRow:1}}>{topBar}</Box>
       <Box sx={{gridColumn:3,gridRow:1,display:'flex',alignItems:'center',justifyContent:'space-between',gap:1}}>
         {status}
@@ -154,7 +159,8 @@ export default function App(){
       <Box sx={{gridColumn:3,gridRow:2,alignSelf:'stretch',minHeight:0,display:'flex',alignItems:confirm?'center':'stretch',justifyContent:'center'}}>
         {confirm
           ? <ConfirmDialog inline {...confirm} />
-          : wideLog&&<MoveHistory fill log={snap.log} />}
+          : wideView==='moves' ? <MoveHistory fill log={snap.log} />
+          : wideView==='stats' && <StatsPanel results={results} ratings={ratings} onClear={g.clearHistory} />}
       </Box>
 
       <Box sx={{gridColumn:2,gridRow:3}}>{bottomBar}</Box>
@@ -175,6 +181,7 @@ export default function App(){
       <div className="stage">{topBar}{boardEl}{bottomBar}</div>
       <Box sx={{display:'flex',alignItems:'center',gap:1,position:'relative'}}>
         {showLog&&!confirm&&<MoveHistory log={snap.log} onClose={()=>setShowLog(false)} />}
+        {showStats&&!confirm&&<StatsPanel popup results={results} ratings={ratings} onClear={g.clearHistory} onClose={()=>setShowStats(false)} />}
         <CornerIcon name="calendar" size={40} />
         {undoBtn}
         {dock}

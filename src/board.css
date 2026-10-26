@@ -31,3 +31,5 @@
   @media (min-height:740px){.setup{zoom:1.08}}
   @media (min-height:780px){.setup{zoom:1.15}}
 }
+  .mlist.stats{gap:12px}
+  .mlist.stats .hist{max-height:none;overflow:visible}
