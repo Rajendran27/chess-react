@@ -3,9 +3,11 @@ import { Box, ButtonBase, IconButton, InputBase, Typography } from '@mui/materia
 import ChatBubbleOutlined from '@mui/icons-material/ChatBubbleOutlined';
 import Send from '@mui/icons-material/Send';
 
+const QUICK=['Hey!','Good luck!','Good move','Nice game','Well played','Thanks!','Rematch?'];   // one click sends it
+
 /* chat box for the match being played, shown in the left space (same box as the calendar).
    players = who can type: both players in a two-player game, only you against the computer */
-export default function ChatPanel({messages,players,onSend}){
+export default function ChatPanel({messages,players,mineSide,onSend}){
   const [text,setText]=useState('');
   const [picked,setPicked]=useState(players[0].side);
   const side=players.some(p=>p.side===picked)?picked:players[0].side;     // who is typing
@@ -29,7 +31,7 @@ export default function ChatPanel({messages,players,onSend}){
 
       <Box ref={listRef} sx={{flex:1,minHeight:0,overflowY:'auto',p:2,display:'flex',flexDirection:'column',gap:1}}>
         {messages.length?messages.map(m=>{
-          const right=!two||m.side==='b';          // black (or you, against the computer) on the right, white on the left
+          const right=two?m.side==='b':(mineSide?m.side===mineSide:true);   // two players on one screen: black right, white left. Otherwise your own messages on the right
           return (
             <Box key={m.id} sx={{alignSelf:right?'flex-end':'flex-start',maxWidth:'82%',px:1.5,py:.75,
               bgcolor:right?'rgba(233,180,76,.16)':'rgba(255,255,255,.07)',
@@ -48,6 +50,15 @@ export default function ChatPanel({messages,players,onSend}){
       </Box>
 
       <Box sx={{borderTop:'1px solid',borderColor:'divider',p:1.25,display:'flex',flexDirection:'column',gap:1}}>
+        <Box sx={{display:'flex',flexWrap:'wrap',gap:.75}}>
+          {QUICK.map(q=>(
+            <ButtonBase key={q} onClick={()=>onSend(q,me.side,me.name)}
+              sx={{px:1.25,py:.5,borderRadius:999,fontSize:12,fontWeight:600,border:'1px solid',borderColor:'divider',bgcolor:'rgba(255,255,255,.03)',
+                transition:'background-color .15s, border-color .15s','&:hover':{borderColor:'primary.main',bgcolor:'rgba(233,180,76,.12)'}}}>
+              {q}
+            </ButtonBase>
+          ))}
+        </Box>
         {two&&(
           <Box sx={{display:'flex',alignItems:'center',gap:.75}}>
             <Typography sx={{fontSize:12,color:'text.secondary'}}>Sending as</Typography>

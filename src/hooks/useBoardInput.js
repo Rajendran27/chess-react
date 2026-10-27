@@ -3,14 +3,14 @@ import { useState, useEffect, useRef } from 'react';
 /* mouse/touch input on the board: click to select and move, or drag a piece.
    g = the object returned by useGame */
 export default function useBoardInput(g){
-  const {snap,promo,cpuTurn,flagged,sel,setSel,targets,play,setPromo}=g;
+  const {snap,promo,locked,flagged,sel,setSel,targets,play,setPromo}=g;
   const [drag,setDrag]=useState(null);
   const dropRef=useRef();
   const wasSel=useRef(false);
 
   const click=(r,c)=>{
     const ws=wasSel.current; wasSel.current=false;
-    if(snap.over||promo||cpuTurn||flagged) return;
+    if(snap.over||promo||locked||flagged) return;
     const mv=sel&&targets.find(m=>m.tr===r&&m.tc===c);
     if(mv){ mv.promo?setPromo(mv):play(mv); return; }
     if(ws&&sel&&sel[0]===r&&sel[1]===c){ setSel(null); return; } // click selected piece again = deselect
@@ -19,7 +19,7 @@ export default function useBoardInput(g){
   };
 
   const onDown=(e,r,c)=>{
-    if(snap.over||promo||cpuTurn||flagged||e.button>0) return;
+    if(snap.over||promo||locked||flagged||e.button>0) return;
     const p=snap.s.b[r][c];
     if(!p||p[0]!==snap.s.turn) return;
     wasSel.current=!!(sel&&sel[0]===r&&sel[1]===c);
