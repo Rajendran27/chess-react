@@ -10,6 +10,7 @@ import Sidebar from './components/Sidebar';
 import RightBar from './components/RightBar';
 import StatsPanel from './components/StatsPanel';
 import CalendarPanel from './components/CalendarPanel';
+import ChatPanel from './components/ChatPanel';
 import StatusBar from './components/StatusBar';
 import Board from './components/Board';
 import PlayerBar from './components/PlayerBar';
@@ -21,14 +22,16 @@ import SettingsDialog from './components/SettingsDialog';
 import useSettings from './hooks/useSettings';
 import useGame from './hooks/useGame';
 import useBoardInput from './hooks/useBoardInput';
+import useChat from './hooks/useChat';
 
 const h=React.createElement;
 
 export default function App(){
   const S=useSettings();
+  const chat=useChat();
   // which screen is showing + small pieces of screen state
   const [view,setView]=useState('setup'), [dashFrom,setDashFrom]=useState('setup');
-  const [showLog,setShowLog]=useState(false), [wideView,setWideView]=useState('moves'), [showStats,setShowStats]=useState(false), [showCal,setShowCal]=useState(false), [showSettings,setShowSettings]=useState(false);
+  const [showLog,setShowLog]=useState(false), [wideView,setWideView]=useState('moves'), [showStats,setShowStats]=useState(false), [showCal,setShowCal]=useState(false), [leftView,setLeftView]=useState(null), [showSettings,setShowSettings]=useState(false);
   const [ask,setAsk]=useState(null), [notice,setNotice]=useState(null);   // ask: 'resign' | 'draw' | 'leave' | null
   const wide=useMediaQuery('(min-width:900px) and (min-aspect-ratio:5/4)',{noSsr:true});   // big screen layout
   const g=useGame({names:S.names,active:view==='game'});
@@ -37,7 +40,7 @@ export default function App(){
     canOffer,canResign,resigner,resign,agreeDraw,declineDraw,cpuDrawAnswer}=g;
   const {drag}=input;
 
-  const startNew=(m,t=tc)=>{g.newGame(m,t);setView('game');};
+  const startNew=(m,t=tc)=>{chat.clear();g.newGame(m,t);setView('game');};
   /* start a game from the setup screen */
   const startGame=()=>{
     const {cfg}=S;
@@ -47,6 +50,7 @@ export default function App(){
     startNew(m,cfg.tc);
   };
   const goSetup=()=>{
+    chat.clear();
     g.setSel(null);setPromo(null);setShowEnd(false);setAsk(null);
     setView('setup');
   };
@@ -58,7 +62,8 @@ export default function App(){
   // during a game the dashboard opens where the moves are shown (side panel on wide screens, pop-up on phones)
   const toggleMoves=()=>wide?setWideView(v=>v==='moves'?null:'moves'):(setShowStats(false),setShowCal(false),setShowLog(v=>!v));
   const toggleStats=()=>wide?setWideView(v=>v==='stats'?null:'stats'):(setShowLog(false),setShowCal(false),setShowStats(v=>!v));
-  const toggleCal=()=>wide?setShowCal(v=>!v):(setShowLog(false),setShowStats(false),setShowCal(v=>!v));
+  const toggleCal=()=>wide?setLeftView(v=>v==='calendar'?null:'calendar'):(setShowLog(false),setShowStats(false),setShowCal(v=>!v));
+  const toggleChat=()=>setLeftView(v=>v==='chat'?null:'chat');
   const showStatsNow=()=>wide?setWideView('stats'):(setShowLog(false),setShowCal(false),setShowStats(true));
 
   /* short message in the status pill */
@@ -97,6 +102,9 @@ export default function App(){
   });
   const msg=snap.over||((snap.s.turn==='w'?'White':'Black')+' to move'+(snap.chk?' — check':''));
   const other=snap.s.turn==='w'?'b':'w';
+  // who can type in the chat: both players, or only you against the computer
+  const humanCol=cpuCol==='w'?'b':'w';
+  const chatPlayers=mode==='2p'?[{side:'w',name:nameOf('w')},{side:'b',name:nameOf('b')}]:[{side:humanCol,name:nameOf(humanCol)}];
   const gp=snap.s.b[drag?drag.r:0][drag?drag.c:0];
 
   /* the question being asked (resign / draw offer / leave), if any */
@@ -150,7 +158,7 @@ export default function App(){
       justifyContent:'center',gridTemplateColumns:'var(--side) var(--b) var(--side)',
       gridTemplateRows:'48px var(--b) 48px'
     }}>
-      <Sidebar onCalendar={toggleCal} />
+      <Sidebar onCalendar={toggleCal} onChat={toggleChat} />
       <RightBar sound={S.sound} showLog={wideView==='moves'} showStats={wideView==='stats'}
         onFlip={()=>setFlip(!flip)} onRestart={()=>startNew(mode,tc)} onToggleLog={toggleMoves}
         onSetup={toSetup} onStats={toggleStats} onToggleSound={S.toggleSound} onSettings={()=>setShowSettings(true)} />
@@ -159,9 +167,11 @@ export default function App(){
         {status}
       </Box>
 
-      {showCal&&(
+      {leftView&&(
         <Box sx={{gridColumn:1,gridRow:2,alignSelf:'stretch',width:'100%',minWidth:0,minHeight:0,display:'flex'}}>
-          <CalendarPanel results={results} />
+          {leftView==='chat'
+            ? <ChatPanel messages={chat.messages} players={chatPlayers} onSend={chat.send} />
+            : <CalendarPanel results={results} />}
         </Box>
       )}
       <Box sx={{gridColumn:2,gridRow:2}}>{boardEl}</Box>
