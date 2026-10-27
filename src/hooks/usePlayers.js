@@ -30,7 +30,7 @@ export default function usePlayers({names,mode,level}){
     setRatings(nr);save('chess-ratings',nr);
     const id=Date.now()+Math.random();recRef.current={id,prev:ratings};
     const rec={id,r:wn===1?'White':wn===0?'Black':'Draw',msg:o,n:Math.ceil(snap.log.length/2),t:tc,w:W,b:B,dl};
-    setResults(rs=>{const n=[rec,...rs].slice(0,50);saveRes(n);return n;});
+    setResults(rs=>{const n=[rec,...rs].slice(0,500);saveRes(n);return n;});
   };
 
   /* taking back a finished game: also take back its result + rating change */

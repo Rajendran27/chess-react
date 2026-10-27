@@ -33,3 +33,7 @@
 }
   .mlist.stats{gap:12px}
   .mlist.stats .hist{max-height:none;overflow:visible}
+
+  /* hide every scrollbar (scrolling with the mouse wheel, touchpad or finger still works) */
+*{scrollbar-width:none;-ms-overflow-style:none}
+*::-webkit-scrollbar{display:none}

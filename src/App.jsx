@@ -9,6 +9,7 @@ import CornerIcon from './components/CornerIcon';
 import Sidebar from './components/Sidebar';
 import RightBar from './components/RightBar';
 import StatsPanel from './components/StatsPanel';
+import CalendarPanel from './components/CalendarPanel';
 import StatusBar from './components/StatusBar';
 import Board from './components/Board';
 import PlayerBar from './components/PlayerBar';
@@ -27,7 +28,7 @@ export default function App(){
   const S=useSettings();
   // which screen is showing + small pieces of screen state
   const [view,setView]=useState('setup'), [dashFrom,setDashFrom]=useState('setup');
-  const [showLog,setShowLog]=useState(false), [wideView,setWideView]=useState('moves'), [showStats,setShowStats]=useState(false), [showSettings,setShowSettings]=useState(false);
+  const [showLog,setShowLog]=useState(false), [wideView,setWideView]=useState('moves'), [showStats,setShowStats]=useState(false), [showCal,setShowCal]=useState(false), [showSettings,setShowSettings]=useState(false);
   const [ask,setAsk]=useState(null), [notice,setNotice]=useState(null);   // ask: 'resign' | 'draw' | 'leave' | null
   const wide=useMediaQuery('(min-width:900px) and (min-aspect-ratio:5/4)',{noSsr:true});   // big screen layout
   const g=useGame({names:S.names,active:view==='game'});
@@ -55,9 +56,10 @@ export default function App(){
   };
   const openDash=()=>{setDashFrom(view==='dash'?dashFrom:view);setView('dash');};
   // during a game the dashboard opens where the moves are shown (side panel on wide screens, pop-up on phones)
-  const toggleMoves=()=>wide?setWideView(v=>v==='moves'?null:'moves'):(setShowStats(false),setShowLog(v=>!v));
-  const toggleStats=()=>wide?setWideView(v=>v==='stats'?null:'stats'):(setShowLog(false),setShowStats(v=>!v));
-  const showStatsNow=()=>wide?setWideView('stats'):(setShowLog(false),setShowStats(true));
+  const toggleMoves=()=>wide?setWideView(v=>v==='moves'?null:'moves'):(setShowStats(false),setShowCal(false),setShowLog(v=>!v));
+  const toggleStats=()=>wide?setWideView(v=>v==='stats'?null:'stats'):(setShowLog(false),setShowCal(false),setShowStats(v=>!v));
+  const toggleCal=()=>wide?setShowCal(v=>!v):(setShowLog(false),setShowStats(false),setShowCal(v=>!v));
+  const showStatsNow=()=>wide?setWideView('stats'):(setShowLog(false),setShowCal(false),setShowStats(true));
 
   /* short message in the status pill */
   const flash=m=>{setNotice(m);setTimeout(()=>setNotice(null),3000);};
@@ -135,18 +137,20 @@ export default function App(){
   );
 
   /* ----- big screens: three rows, each lined up across the whole window -----
-     top    : (left bar) | top player | status, draw, resign
-     middle : (left bar) | board      | move history (or the question being asked)
-     bottom : (left bar) | bottom player | undo
+     top    : (empty / calendar) | top player    | status, draw, resign
+     middle : calendar           | board         | move history (or the question being asked)
+     bottom : (empty / calendar) | bottom player | undo
+     the board sits in the middle of the window, with a calendar box and a move box of the same size beside it
      the left bar and the right bar (settings + game buttons) are pinned to the window edges */
   if(wide) return (
     <Box sx={{
-      '--b':'min(calc(100dvh - 136px), calc(100vw - 650px), 900px)',
-      height:'100dvh',boxSizing:'border-box',pl:2,pr:'104px',py:1,display:'grid',alignContent:'center',alignItems:'center',columnGap:3,rowGap:1,
-      gridTemplateColumns:'minmax(72px,1fr) var(--b) minmax(400px,1.4fr)',
+      '--b':'min(calc(100dvh - 136px), calc(100vw - 760px), 900px)',
+      '--side':'clamp(240px, calc((100vw - 208px - 48px - var(--b)) / 2), 560px)',   // width of the calendar box and the moves box
+      height:'100dvh',boxSizing:'border-box',pl:'104px',pr:'104px',py:1,display:'grid',alignContent:'center',alignItems:'center',columnGap:3,rowGap:1,
+      justifyContent:'center',gridTemplateColumns:'var(--side) var(--b) var(--side)',
       gridTemplateRows:'48px var(--b) 48px'
     }}>
-      <Sidebar />
+      <Sidebar onCalendar={toggleCal} />
       <RightBar sound={S.sound} showLog={wideView==='moves'} showStats={wideView==='stats'}
         onFlip={()=>setFlip(!flip)} onRestart={()=>startNew(mode,tc)} onToggleLog={toggleMoves}
         onSetup={toSetup} onStats={toggleStats} onToggleSound={S.toggleSound} onSettings={()=>setShowSettings(true)} />
@@ -155,8 +159,13 @@ export default function App(){
         {status}
       </Box>
 
+      {showCal&&(
+        <Box sx={{gridColumn:1,gridRow:2,alignSelf:'stretch',width:'100%',minWidth:0,minHeight:0,display:'flex'}}>
+          <CalendarPanel results={results} />
+        </Box>
+      )}
       <Box sx={{gridColumn:2,gridRow:2}}>{boardEl}</Box>
-      <Box sx={{gridColumn:3,gridRow:2,alignSelf:'stretch',minHeight:0,display:'flex',alignItems:confirm?'center':'stretch',justifyContent:'center'}}>
+      <Box sx={{gridColumn:3,gridRow:2,alignSelf:'stretch',width:'100%',minWidth:0,minHeight:0,display:'flex',alignItems:confirm?'center':'stretch',justifyContent:'center'}}>
         {confirm
           ? <ConfirmDialog inline {...confirm} />
           : wideView==='moves' ? <MoveHistory fill log={snap.log} />
@@ -182,7 +191,8 @@ export default function App(){
       <Box sx={{display:'flex',alignItems:'center',gap:1,position:'relative'}}>
         {showLog&&!confirm&&<MoveHistory log={snap.log} onClose={()=>setShowLog(false)} />}
         {showStats&&!confirm&&<StatsPanel popup results={results} ratings={ratings} onClear={g.clearHistory} onClose={()=>setShowStats(false)} />}
-        <CornerIcon name="calendar" size={40} />
+        {showCal&&!confirm&&<CalendarPanel popup results={results} onClose={()=>setShowCal(false)} />}
+        <CornerIcon name="calendar" size={40} label="Calendar" onClick={toggleCal} />
         {undoBtn}
         {dock}
       </Box>
