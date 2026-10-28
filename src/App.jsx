@@ -7,6 +7,7 @@ import Setup from './components/Setup';
 import Dashboard from './components/Dashboard';
 import CornerIcon from './components/CornerIcon';
 import Sidebar from './components/Sidebar';
+import Wordmark from './components/Wordmark';
 import RightBar from './components/RightBar';
 import StatsPanel from './components/StatsPanel';
 import CalendarPanel from './components/CalendarPanel';
@@ -216,7 +217,7 @@ export default function App(){
     <Box sx={{
       '--b':'min(calc(100dvh - 136px), calc(100vw - 760px), 900px)',
       '--side':'clamp(240px, calc((100vw - 208px - 48px - var(--b)) / 2), 560px)',   // width of the calendar box and the moves box
-      height:'100dvh',boxSizing:'border-box',pl:'104px',pr:'104px',py:1,display:'grid',alignContent:'center',alignItems:'center',columnGap:3,rowGap:1,
+      height:'100dvh',boxSizing:'border-box',pl:'104px',pr:'104px',pt:'15px',pb:1,display:'grid',alignContent:'start',alignItems:'center',columnGap:3,rowGap:1,
       justifyContent:'center',gridTemplateColumns:'var(--side) var(--b) var(--side)',
       gridTemplateRows:'48px var(--b) 48px'
     }}>
@@ -224,6 +225,9 @@ export default function App(){
       <RightBar sound={S.sound} showLog={wideView==='moves'} showStats={wideView==='stats'}
         onFlip={()=>setFlip(!flip)} onRestart={()=>restart()} onToggleLog={toggleMoves}
         onSetup={toSetup} onStats={toggleStats} onToggleSound={S.toggleSound} onSettings={()=>setShowSettings(true)} />
+      <Box sx={{gridColumn:1,gridRow:1,display:'flex',alignItems:'center',justifyContent:'center',minWidth:0}}>
+        <Wordmark />
+      </Box>
       <Box sx={{gridColumn:2,gridRow:1}}>{topBar}</Box>
       <Box sx={{gridColumn:3,gridRow:1,display:'flex',alignItems:'center',justifyContent:'space-between',gap:1}}>
         {status}
