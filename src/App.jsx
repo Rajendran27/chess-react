@@ -35,6 +35,7 @@ export default function App(){
   // which screen is showing + small pieces of screen state
   const [view,setView]=useState('setup'), [dashFrom,setDashFrom]=useState('setup');
   const [showLog,setShowLog]=useState(false), [wideView,setWideView]=useState('moves'), [showStats,setShowStats]=useState(false), [showCal,setShowCal]=useState(false), [leftView,setLeftView]=useState(null), [showSettings,setShowSettings]=useState(false);
+  const [showChatPop,setShowChatPop]=useState(false);   // phones: chat pop-up above the buttons
   const [unread,setUnread]=useState(0);   // messages from the other player that you have not opened yet
   const [ask,setAsk]=useState(null), [notice,setNotice]=useState(null);   // ask: 'resign' | 'draw' | 'leave' | null
   const wide=useMediaQuery('(min-width:900px) and (min-aspect-ratio:5/4)',{noSsr:true});   // big screen layout
@@ -54,6 +55,8 @@ export default function App(){
       online.send({type:'hello',name:(S.names.a||'').trim().slice(0,14)||'Player 1'});
     }
   },[online.status]);
+  // chat is only for online games: close the chat box when there is no online game
+  useEffect(()=>{ if(!remote){ setLeftView(v=>v==='chat'?null:v); setShowChatPop(false); } },[remote]);
   // the other player's connection dropped
   useEffect(()=>{ if(online.status==='closed') flash('Your opponent disconnected'); },[online.status]);
 
@@ -85,11 +88,12 @@ export default function App(){
   };
   const openDash=()=>{setDashFrom(view==='dash'?dashFrom:view);setView('dash');};
   // during a game the dashboard opens where the moves are shown (side panel on wide screens, pop-up on phones)
-  const toggleMoves=()=>wide?setWideView(v=>v==='moves'?null:'moves'):(setShowStats(false),setShowCal(false),setShowLog(v=>!v));
-  const toggleStats=()=>wide?setWideView(v=>v==='stats'?null:'stats'):(setShowLog(false),setShowCal(false),setShowStats(v=>!v));
-  const toggleCal=()=>wide?setLeftView(v=>v==='calendar'?null:'calendar'):(setShowLog(false),setShowStats(false),setShowCal(v=>!v));
-  const toggleChat=()=>{setUnread(0);setLeftView(v=>v==='chat'?null:'chat');};
-  const showStatsNow=()=>wide?setWideView('stats'):(setShowLog(false),setShowCal(false),setShowStats(true));
+  const toggleMoves=()=>wide?setWideView(v=>v==='moves'?null:'moves'):(setShowStats(false),setShowCal(false),setShowChatPop(false),setShowLog(v=>!v));
+  const toggleStats=()=>wide?setWideView(v=>v==='stats'?null:'stats'):(setShowLog(false),setShowCal(false),setShowChatPop(false),setShowStats(v=>!v));
+  const toggleCal=()=>wide?setLeftView(v=>v==='calendar'?null:'calendar'):(setShowLog(false),setShowStats(false),setShowChatPop(false),setShowCal(v=>!v));
+  const toggleChat=()=>{ if(!remote) return; setUnread(0); setLeftView(v=>v==='chat'?null:'chat'); };
+  const toggleChatPhone=()=>{ if(!remote) return; setUnread(0); setShowLog(false); setShowStats(false); setShowCal(false); setShowChatPop(v=>!v); };
+  const showStatsNow=()=>wide?setWideView('stats'):(setShowLog(false),setShowCal(false),setShowChatPop(false),setShowStats(true));
 
   /* short message in the status pill */
   const flash=m=>{setNotice(m);setTimeout(()=>setNotice(null),3000);};
@@ -125,7 +129,7 @@ export default function App(){
       case 'draw-decline': declineDraw(); flash('Draw offer declined'); break;
       case 'chat':
         chat.send(String(msg.text||'').slice(0,500),msg.side==='b'?'b':'w',String(msg.name||'').slice(0,14));
-        if(leftView!=='chat') setUnread(n=>n+1);                   // chat box is closed: show the dot on the chat icon
+        if(wide?leftView!=='chat':!showChatPop) setUnread(n=>n+1);                   // chat box is closed: show the dot on the chat icon
         break;
       case 'left': flash('Your opponent left the game'); break;
       default: break;
@@ -199,7 +203,7 @@ export default function App(){
   const undoBtn=<UndoButton disabled={!S.undoOn||!!remote||!(hist.length>0&&!cpuTurn)} onClick={undo} />;
   const dock=(
     <Dock showLog={wide?wideView==='moves':showLog} sound={S.sound} onFlip={()=>setFlip(!flip)} onRestart={()=>restart()}
-      onToggleLog={toggleMoves} onSetup={toSetup} onStats={toggleStats} onToggleSound={S.toggleSound} />
+      onToggleLog={toggleMoves} onSetup={toSetup} onStats={toggleStats} onChat={toggleChatPhone} chatEnabled={!!remote} chatUnread={unread>0} />
   );
   const ghost=drag&&drag.moved&&(
     <div className={'gw p-'+pst}>
@@ -221,7 +225,7 @@ export default function App(){
       justifyContent:'center',gridTemplateColumns:'var(--side) var(--b) var(--side)',
       gridTemplateRows:'48px var(--b) 48px'
     }}>
-      <Sidebar onCalendar={toggleCal} onChat={toggleChat} chatUnread={unread>0} />
+      <Sidebar onCalendar={toggleCal} onChat={toggleChat} chatEnabled={!!remote} chatUnread={unread>0} />
       <RightBar sound={S.sound} showLog={wideView==='moves'} showStats={wideView==='stats'}
         onFlip={()=>setFlip(!flip)} onRestart={()=>restart()} onToggleLog={toggleMoves}
         onSetup={toSetup} onStats={toggleStats} onToggleSound={S.toggleSound} onSettings={()=>setShowSettings(true)} />
@@ -257,7 +261,9 @@ export default function App(){
 
   /* ----- phones and narrow windows: one column ----- */
   return (
-    <Box sx={{'--b':'min(96vw, calc(100dvh - 250px), 640px)',width:'var(--b)',mx:'auto',py:1,display:'flex',flexDirection:'column',gap:1}}>
+    <Box sx={{'--b':'min(96vw, calc(100dvh - 310px), 640px)',width:'var(--b)',mx:'auto',py:1,display:'flex',flexDirection:'column',gap:1}}>
+     <Box sx={{height:46}} />
+<Box sx={{position:'fixed',top:50,left:0,right:0,zIndex:5,display:'flex',justifyContent:'center',pointerEvents:'none','& h1':{pointerEvents:'auto'}}}><Wordmark /></Box>
       <Box sx={{display:'flex',alignItems:'center',gap:1}}>
         <CornerIcon name="home" size={40} />
         {status}
@@ -266,6 +272,11 @@ export default function App(){
       <div className="stage">{topBar}{boardEl}{bottomBar}</div>
       <Box sx={{display:'flex',alignItems:'center',gap:1,position:'relative'}}>
         {showLog&&!confirm&&<MoveHistory log={snap.log} onClose={()=>setShowLog(false)} />}
+        {showChatPop&&!confirm&&(
+          <Box sx={{position:'absolute',left:0,right:0,bottom:'calc(100% + 8px)',zIndex:30,height:'min(70vh,520px)',display:'flex'}}>
+            <ChatPanel messages={chat.messages} players={chatPlayers} mineSide={remote?remote.me:null} onSend={sendChat} />
+          </Box>
+        )}
         {showStats&&!confirm&&<StatsPanel popup results={results} ratings={ratings} onClear={g.clearHistory} onClose={()=>setShowStats(false)} />}
         {showCal&&!confirm&&<CalendarPanel popup results={results} onClose={()=>setShowCal(false)} />}
         <CornerIcon name="calendar" size={40} label="Calendar" onClick={toggleCal} />
