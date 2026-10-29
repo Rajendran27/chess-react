@@ -2,6 +2,8 @@ import React from 'react';
 import { MODES, LEVELS, CLOCKS, THEMES, PIECE_STYLES, PREVIEW } from '../constants';
 import { icon, glyph, seg } from './ui';
 import { save } from '../utils';
+import ArrowCircleLeftIcon from '@mui/icons-material/ArrowCircleLeft';
+import InsertChartIcon from '@mui/icons-material/InsertChart';
 
 const h=React.createElement;
 
@@ -38,7 +40,7 @@ export default function Setup({cfg,setCfg,names,setNames,theme,setTheme,pst,setP
         h('div',{className:'prev t-'+theme+' p-'+pst,'aria-hidden':true},
           PREVIEW.map((x,i)=>h('div',{key:i,className:'pq '+(((i>>2)+(i&3))%2?'d':'l')},glyph(x[0],x[1])))))),
     h('div',{className:'btns go-row'},
-      onHome&&h('button',{className:'b',onClick:onHome,'aria-label':'Back to home'},icon('left',16),'Back'),
+      onHome&&h('button',{className:'b',onClick:onHome,'aria-label':'Back to home'},<ArrowCircleLeftIcon/>),
       h('button',{className:'b pri go',onClick:onStart},online?(joining?'Join game':'Create game'):'Start game'),
-      h('button',{className:'b',onClick:onDash},'Dashboard'))));
+      h('button',{className:'b',onClick:onDash},<InsertChartIcon/>))));
 }

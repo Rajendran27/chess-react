@@ -8,7 +8,7 @@ import CalendarMonthOutlined from '@mui/icons-material/CalendarMonthOutlined';
 import SettingsOutlined from '@mui/icons-material/SettingsOutlined';
 
 const ITEMS=[
-  {Icon:Home,active:true,id:'home',label:'Home'},
+  {Icon:Home,active:false,id:'home',label:'Home'},
   // {Icon:BarChart},
   {Icon:PeopleOutlined},
   {Icon:ChatIcon,id:'chat',label:'Chat'},
@@ -32,7 +32,7 @@ export default function Sidebar({compact,onHome,onChat,onCalendar,chatUnread,cha
         {ITEMS.map(({Icon,active,id,label},i)=>(
           id&&handlers[id]
             ? <ButtonBase key={i} onClick={handlers[id]} title={label} aria-label={label}
-                sx={{...look(active),transition:'background-color .15s','&:hover':{bgcolor:'rgba(255,255,255,.06)'}}}>
+                sx={{...look(active),transition: 'background-color .15s','&:hover': {bgcolor: '#0f4a43',color: '#fff'}}}>
                 <Box sx={{position:'relative',display:'flex'}}>
                   <Icon sx={{fontSize:icon}} />
                   {id==='chat'&&chatUnread&&<Box sx={{position:'absolute',top:-2,right:-3,width:11,height:11,borderRadius:'50%',bgcolor:'success.main',border:'2px solid',borderColor:'background.default'}} />}

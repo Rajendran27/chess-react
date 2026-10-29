@@ -14,8 +14,7 @@ import VolumeOff from '@mui/icons-material/VolumeOff';
 const Item=({icon,title,onClick,active})=>(
   <ButtonBase onClick={onClick} title={title} aria-label={title} aria-pressed={active}
     sx={{flex:'none',width:50,height:50,borderRadius:3,color:active?'#fff':'text.primary',bgcolor:active?'#0f4a43':'transparent',
-      transition:'background-color .15s',
-      '&:hover':{bgcolor:active?'#12584f':'rgba(255,255,255,.06)'},'& svg':{fontSize:28}}}>
+      transition:'background-color .15s','&:hover': {bgcolor: '#0f4a43',color: '#fff'},'& svg':{fontSize:28}}}>
     {icon}
   </ButtonBase>
 );
