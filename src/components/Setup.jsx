@@ -5,7 +5,7 @@ import { save } from '../utils';
 
 const h=React.createElement;
 
-export default function Setup({cfg,setCfg,names,setNames,theme,setTheme,pst,setPst,onStart,onDash}){
+export default function Setup({cfg,setCfg,names,setNames,theme,setTheme,pst,setPst,onStart,onDash,onHome}){
   const set=p=>setCfg(c=>({...c,...p}));
   const cpuMode=cfg.mode==='cpu', online=cfg.mode==='online', joining=online&&cfg.online==='join', solo=cpuMode||online;   // solo = only one name to type
   const setName=(k,v)=>{const n={...names,[k]:v};setNames(n);save('chess-names',n);};
@@ -38,6 +38,7 @@ export default function Setup({cfg,setCfg,names,setNames,theme,setTheme,pst,setP
         h('div',{className:'prev t-'+theme+' p-'+pst,'aria-hidden':true},
           PREVIEW.map((x,i)=>h('div',{key:i,className:'pq '+(((i>>2)+(i&3))%2?'d':'l')},glyph(x[0],x[1])))))),
     h('div',{className:'btns go-row'},
+      onHome&&h('button',{className:'b',onClick:onHome,'aria-label':'Back to home'},icon('left',16),'Back'),
       h('button',{className:'b pri go',onClick:onStart},online?(joining?'Join game':'Create game'):'Start game'),
       h('button',{className:'b',onClick:onDash},'Dashboard'))));
 }

@@ -3,6 +3,7 @@ import './style.css';
 import { Box, useMediaQuery } from '@mui/material';
 import { GL } from './constants';
 import { save, material } from './utils';
+import Home from './components/Home';
 import Setup from './components/Setup';
 import Dashboard from './components/Dashboard';
 import CornerIcon from './components/CornerIcon';
@@ -33,7 +34,7 @@ export default function App(){
   const S=useSettings();
   const chat=useChat();
   // which screen is showing + small pieces of screen state
-  const [view,setView]=useState('setup'), [dashFrom,setDashFrom]=useState('setup');
+  const [view,setView]=useState('home'), [dashFrom,setDashFrom]=useState('setup');
   const [showLog,setShowLog]=useState(false), [wideView,setWideView]=useState('moves'), [showStats,setShowStats]=useState(false), [showCal,setShowCal]=useState(false), [leftView,setLeftView]=useState(null), [showSettings,setShowSettings]=useState(false);
   const [showChatPop,setShowChatPop]=useState(false);   // phones: chat pop-up above the buttons
   const [unread,setUnread]=useState(0);   // messages from the other player that you have not opened yet
@@ -76,11 +77,17 @@ export default function App(){
     g.setLevel(cfg.level);
     startNew(m,cfg.tc);
   };
-  const goSetup=()=>{
+  const leave=to=>{
     online.send({type:'left'}); setTimeout(()=>online.close(),200);   // leave an online game
     chat.clear();
     g.setSel(null);setPromo(null);setShowEnd(false);setAsk(null);
-    setView('setup');
+    setView(to);
+  };
+  const goSetup=()=>leave('setup');
+  const goHome=()=>leave('home');
+  const toHome=()=>{
+    if(g.live) setAsk('leave-home');   // game in progress: ask first
+    else goHome();
   };
   const toSetup=()=>{
     if(g.live) setAsk('leave');     // game in progress: ask first
@@ -143,8 +150,10 @@ export default function App(){
   };
 
   /* ---------- Screens ---------- */
+  if(view==='home') return h(Home,{onPlay:()=>setView('setup')});
+
   if(view==='setup') return h(React.Fragment,null,
-    h(Setup,{...S,onStart:startGame,onDash:openDash}),
+    h(Setup,{...S,onStart:startGame,onDash:openDash,onHome:()=>{online.close();setView('home');}}),
     ['waiting','joining','error'].includes(online.status)&&h(OnlineDialog,{status:online.status,code:online.code,error:online.error,onCancel:online.close}));
 
   if(view==='dash') return h(Dashboard,{
@@ -180,6 +189,8 @@ export default function App(){
       onConfirm:()=>{setAsk(null);agreeDraw();},onCancel:()=>{setAsk(null);declineDraw();flash('Draw offer declined');}}
     :ask==='draw-in'?{title:'Draw offer',text:(remote?remote.oppName:'Your opponent')+' offers a draw. Do you accept?',confirmLabel:'Accept',cancelLabel:'Decline',
       onConfirm:()=>{setAsk(null);online.send({type:'draw-accept'});agreeDraw();},onCancel:()=>{setAsk(null);online.send({type:'draw-decline'});declineDraw();}}
+    :ask==='leave-home'?{title:'Leave this game?',text:'Your current game will be lost.',confirmLabel:'Leave',
+      onConfirm:goHome,onCancel:()=>setAsk(null)}
     :ask==='leave'?{title:'Leave this game?',text:'Your current game will be lost.',confirmLabel:'Leave',
       onConfirm:goSetup,onCancel:()=>setAsk(null)}
     :null;
@@ -225,7 +236,7 @@ export default function App(){
       justifyContent:'center',gridTemplateColumns:'var(--side) var(--b) var(--side)',
       gridTemplateRows:'48px var(--b) 48px'
     }}>
-      <Sidebar onCalendar={toggleCal} onChat={toggleChat} chatEnabled={!!remote} chatUnread={unread>0} />
+      <Sidebar onHome={toHome} onCalendar={toggleCal} onChat={toggleChat} chatEnabled={!!remote} chatUnread={unread>0} />
       <RightBar sound={S.sound} showLog={wideView==='moves'} showStats={wideView==='stats'}
         onFlip={()=>setFlip(!flip)} onRestart={()=>restart()} onToggleLog={toggleMoves}
         onSetup={toSetup} onStats={toggleStats} onToggleSound={S.toggleSound} onSettings={()=>setShowSettings(true)} />
@@ -262,10 +273,9 @@ export default function App(){
   /* ----- phones and narrow windows: one column ----- */
   return (
     <Box sx={{'--b':'min(96vw, calc(100dvh - 310px), 640px)',width:'var(--b)',mx:'auto',py:1,display:'flex',flexDirection:'column',gap:1}}>
-     <Box sx={{height:46}} />
-<Box sx={{position:'fixed',top:50,left:0,right:0,zIndex:5,display:'flex',justifyContent:'center',pointerEvents:'none','& h1':{pointerEvents:'auto'}}}><Wordmark /></Box>
+      <Box sx={{display:'flex',justifyContent:'center',py:.5}}><Wordmark /></Box>
       <Box sx={{display:'flex',alignItems:'center',gap:1}}>
-        <CornerIcon name="home" size={40} />
+        <CornerIcon name="home" size={40} label="Home" onClick={toHome} />
         {status}
         <CornerIcon name="settings" size={40} label="Settings" onClick={()=>setShowSettings(true)} />
       </Box>

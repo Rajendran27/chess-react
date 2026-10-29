@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, ButtonBase } from '@mui/material';
 import SettingsOutlined from '@mui/icons-material/SettingsOutlined';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 import SwapHoriz from '@mui/icons-material/SwapHoriz';
 import Refresh from '@mui/icons-material/Refresh';
 import FormatListBulleted from '@mui/icons-material/FormatListBulleted';
@@ -26,6 +27,7 @@ export default function RightBar({sound,showLog,onFlip,onRestart,onToggleLog,onS
     <Box component="aside" sx={{position:'fixed',right:0,top:0,bottom:0,width:88,zIndex:1,boxSizing:'border-box',overflowY:'auto',
       display:'flex',flexDirection:'column',alignItems:'center',pt:1,pb:2.5,borderLeft:'1px solid',borderColor:'divider'}}>
       <Item icon={<SettingsOutlined />} title="Settings" onClick={onSettings} />
+      <Item icon={<NotificationsIcon />} />
       <Box sx={{mt:'auto',display:'flex',flexDirection:'column',gap:2}}>
         <Item icon={<SwapHoriz />} title="Flip board" onClick={onFlip} />
         <Item icon={<Refresh />} title="Restart game" onClick={onRestart} />
