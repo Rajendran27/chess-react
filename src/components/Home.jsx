@@ -2,13 +2,17 @@ import React from 'react';
 import { Box, Button, IconButton } from '@mui/material';
 import PeopleOutlined from '@mui/icons-material/PeopleOutlined';
 import CalendarMonthOutlined from '@mui/icons-material/CalendarMonthOutlined';
+import NotificationsOutlined from '@mui/icons-material/NotificationsOutlined';
 import SettingsOutlined from '@mui/icons-material/SettingsOutlined';
+import AccountCircleOutlined from '@mui/icons-material/AccountCircleOutlined';
 import Wordmark from './Wordmark';
 
 const NAV=[
   {Icon:PeopleOutlined,label:'Friends'},
   {Icon:CalendarMonthOutlined,label:'Calendar'},
-  {Icon:SettingsOutlined,label:'Settings'}
+  {Icon:SettingsOutlined,label:'Settings'},
+  {Icon:NotificationsOutlined,label:'Notifications'},
+  {Icon:AccountCircleOutlined,label:'Profile'}
 ];
 
 const round={width:46,height:46,border:'1px solid',borderColor:'divider',bgcolor:'background.paper',color:'text.primary',
